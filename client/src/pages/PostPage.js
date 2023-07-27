@@ -3,6 +3,7 @@ import {useParams} from "react-router-dom";
 import {formatISO9075} from "date-fns";
 import {UserContext} from "../UserContext";
 import {Link} from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 export default function PostPage() {
   const [postInfo,setPostInfo] = useState(null);
@@ -37,7 +38,7 @@ export default function PostPage() {
       <div className="image">
         <img src={`http://localhost:4000/${postInfo.cover}`} alt=""/>
       </div>
-      <div className="content" dangerouslySetInnerHTML={{__html:postInfo.content}} />
+      <div className="content" dangerouslySetInnerHTML={{__html:DOMPurify.sanitize(postInfo.content)}} />
     </div>
   );
 }
