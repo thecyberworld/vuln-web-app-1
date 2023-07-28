@@ -11,10 +11,8 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-
-
-const salt = bcrypt.genSaltSync(10);
-const secret = 'asdfe45we45w345wegw345werjktjwertkj';
+const salt = bcrypt.genSaltSync(SALT_VALUE);
+const secret = process.env.SECRET;
 
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
@@ -67,12 +65,25 @@ app.post('/logout', (req,res) => {
   res.cookie('token', '').json('ok');
 });
 
-app.post('/post', uploadMiddleware.single('file'), async (req,res) => {
-  const {originalname,path} = req.file;
+const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif']; // Add other allowed extensions as needed
+
+app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const { originalname, path } = req.file;
   const parts = originalname.split('.');
-  const ext = parts[parts.length - 1];
-  const newPath = path+'.'+ext;
+  const ext = parts[parts.length - 1].toLowerCase();
+  if (!allowedExtensions.includes(ext)) {
+    return res.status(400).send('Invalid file type.');
+  }
+  const fileName = originalname.replace(/^.*[\\/]/, '');
+  const newPath = path + '.' + ext;g
   fs.renameSync(path, newPath);
+  res.status(200).send('File uploaded and renamed successfully.');
+});
+
 
   const {token} = req.cookies;
   jwt.verify(token, secret, {}, async (err,info) => {
