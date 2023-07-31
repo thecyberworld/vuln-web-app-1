@@ -16,34 +16,22 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 const crypto = require('crypto');
+require('dotenv').config();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
 });
 
-function generateRandomPassword(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[{]};:,<.>?';
-  const charactersLength = characters.length;
-  let randomPassword = '';
 
-  for (let i = 0; i < length; i++) {
-    const randomIndex = crypto.randomInt(0, charactersLength);
-    randomPassword += characters.charAt(randomIndex);
-  }
+const salt = bcrypt.genSaltSync(process.env.SALT_VALUE);
+const mypwd = process.env.MY_SECRET_PASSWORD; 
 
-  return randomPassword;
-}
-
-
-const salt = bcrypt.genSaltSync(10);
-const mypwd = generateRandomPassword(24); // Generate a 24-character random password
-console.log(mypwd);
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect('mongodb+srv://blog:RD8paskYC8Ayj09u@cluster0.pflplid.mongodb.net/?retryWrites=true&w=majority');
+mongoose.connect(process.env.MONGO_URL);
 
 
 app.post('/register', async (req,res) => {
@@ -171,5 +159,5 @@ app.use(morgan('dev'));
 require('./routes/currency.route.js')(app);
 app.use(csrf({ cookie: true }));
 
-app.listen(3000);
+app.listen(4000);
 //
