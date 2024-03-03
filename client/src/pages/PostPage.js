@@ -1,27 +1,30 @@
-import {useContext, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
-import {formatISO9075} from "date-fns";
-import {UserContext} from "../UserContext";
-import {Link} from 'react-router-dom';
+import { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { formatISO9075 } from "date-fns";
+import { UserContext } from "../UserContext";
+import { Link } from 'react-router-dom';
+import DOMPurify from 'dompurify'; //to  sanitize the post title and content before rendering them into the DOM
 
 export default function PostPage() {
-  const [postInfo,setPostInfo] = useState(null);
-  const {userInfo} = useContext(UserContext);
-  const {id} = useParams();
+  const [postInfo, setPostInfo] = useState(null);
+  const { userInfo } = useContext(UserContext);
+  const { id } = useParams();
+
   useEffect(() => {
     fetch(`http://localhost:4000/post/${id}`)
-      .then(response => {
-        response.json().then(postInfo => {
-          setPostInfo(postInfo);
-        });
-      });
-  }, []);
+      .then(response => response.json())
+      .then(postInfo => {
+        setPostInfo(postInfo);
+      })//Missing .catch
+      .catch(error => console.error('Error fetching post:', error));
+  }, [id]);
 
-  if (!postInfo) return '';
 
+  if (!postInfo) return null;
+  //added DOMPurify.sanitize to sanitize the output
   return (
     <div className="post-page">
-      <h1>{postInfo.title}</h1>
+      <h1>{DOMPurify.sanitize(postInfo.title)}</h1> 
       <time>{formatISO9075(new Date(postInfo.createdAt))}</time>
       <div className="author">by @{postInfo.author.username}</div>
       {userInfo.id === postInfo.author._id && (
@@ -35,9 +38,9 @@ export default function PostPage() {
         </div>
       )}
       <div className="image">
-        <img src={`http://localhost:4000/${postInfo.cover}`} alt=""/>
+        <img src={DOMPurify.sanitize(`http://localhost:4000/${postInfo.cover}`)} alt="" />
       </div>
-      <div className="content" dangerouslySetInnerHTML={{__html:postInfo.content}} />
+      <div className="content" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(postInfo.content)}} />
     </div>
   );
 }
