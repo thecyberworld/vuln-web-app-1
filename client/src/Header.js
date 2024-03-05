@@ -11,8 +11,8 @@ export default function Header() {
       response.json().then(userInfo => {
         setUserInfo(userInfo);
       });
-    });
-  }, []);
+    }).catch(err => console.log(err))
+  }, [id]);
 
   function logout() {
     fetch('http://localhost:4000/logout', {
