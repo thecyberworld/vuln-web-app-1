@@ -11,7 +11,7 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-const salt = bcrypt.genSaltSync(10);
+const salt = bcrypt.genSaltSync(process.env.SALT);
 const secret = process.env.SECRET;
 
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
@@ -56,7 +56,7 @@ app.post('/login', async (req,res) => {
 
 app.get('/profile', (req,res) => {
   const {token} = req.cookies;
-  jwt.verify(token, processsecret, {}, (err,info) => {
+  jwt.verify(token,processsecret, {}, (err,info) => {
     if (err) throw err;
     res.json(info);
   });
