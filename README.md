@@ -13,6 +13,10 @@ fork and clone
 
 ## Commands
 
+### `yarn`
+
+install node_modules
+
 ### `yarn start`
 
 api - to start the server
