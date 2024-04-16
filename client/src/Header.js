@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect} from "react";
 import {UserContext} from "./UserContext";
 
 export default function Header() {
@@ -12,7 +12,7 @@ export default function Header() {
         setUserInfo(userInfo);
       });
     });
-  }, []);
+  }, [setUserInfo,userInfo]);
 
   function logout() {
     fetch('http://localhost:4000/logout', {
